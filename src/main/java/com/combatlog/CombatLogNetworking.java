@@ -2,32 +2,32 @@ package com.combatlog;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 public final class CombatLogNetworking {
 
-    public record TagTimerPayload(long remainingMs) implements CustomPayload {
+    public record TagTimerPayload(long remainingMs) implements CustomPacketPayload {
 
-        public static final Identifier TAG_TIMER_ID =
-                Identifier.of(CombatLogMod.MOD_ID, "tag_timer");
+        public static final ResourceLocation TAG_TIMER_ID =
+                ResourceLocation.fromNamespaceAndPath(CombatLogMod.MOD_ID, "tag_timer");
 
-        public static final CustomPayload.Id<TagTimerPayload> TYPE =
-                new CustomPayload.Id<>(TAG_TIMER_ID);
+        public static final CustomPacketPayload.Type<TagTimerPayload> TYPE =
+                new CustomPacketPayload.Type<>(TAG_TIMER_ID);
 
-        public static final PacketCodec<RegistryByteBuf, TagTimerPayload> CODEC =
-                PacketCodec.tuple(
-                        PacketCodecs.VAR_LONG,
+        public static final StreamCodec<RegistryFriendlyByteBuf, TagTimerPayload> CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.VAR_LONG,
                         TagTimerPayload::remainingMs,
                         TagTimerPayload::new
                 );
 
         @Override
-        public CustomPayload.Id<? extends CustomPayload> getId() {
+        public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
             return TYPE;
         }
     }
@@ -38,7 +38,7 @@ public final class CombatLogNetworking {
         PayloadTypeRegistry.playS2C().register(TagTimerPayload.TYPE, TagTimerPayload.CODEC);
     }
 
-    public static void sendTagTime(ServerPlayerEntity player, long remainingMs) {
+    public static void sendTagTime(ServerPlayer player, long remainingMs) {
         if (player == null) return;
         ServerPlayNetworking.send(player, new TagTimerPayload(remainingMs));
     }

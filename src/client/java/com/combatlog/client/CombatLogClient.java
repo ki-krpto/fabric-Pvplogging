@@ -4,9 +4,9 @@ import com.combatlog.CombatLogNetworking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class CombatLogClient implements ClientModInitializer {
 
@@ -25,39 +25,30 @@ public class CombatLogClient implements ClientModInitializer {
                     });
                 }
         );
-
         HudRenderCallback.EVENT.register(CombatLogClient::renderHud);
     }
 
-    private static void renderHud(DrawContext drawContext, float tickDelta) {
+    private static void renderHud(GuiGraphics graphics, float tickDelta) {
         long remainingMs = tagEndsAtMs - System.currentTimeMillis();
         if (remainingMs <= 0) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client == null || client.player == null) return;
 
         int seconds = (int) Math.ceil(remainingMs / 1000.0);
         String text = String.valueOf(seconds);
-
-        TextRenderer textRenderer = client.textRenderer;
-        int width  = client.getWindow().getScaledWidth();
-        int height = client.getWindow().getScaledHeight();
-
-        int x = (width - textRenderer.getWidth(text)) / 2;
+        Font font = client.font;
+        int width = client.getWindow().getGuiScaledWidth();
+        int height = client.getWindow().getGuiScaledHeight();
+        int x = (width - font.width(text)) / 2;
         int y = height - 49;
-
         float scale = 0.9f;
-        var matrices = drawContext.getMatrices();
-        matrices.push();
-        matrices.scale(scale, scale, 1.0f);
-        drawContext.drawText(
-                textRenderer,
-                text,
-                Math.round(x / scale),
-                Math.round(y / scale),
-                0xFFFF5555,
-                false
-        );
-        matrices.pop();
+        var pose = graphics.pose();
+        pose.pushPose();
+        pose.scale(scale, scale, 1.0f);
+        int scaledX = Math.round(x / scale);
+        int scaledY = Math.round(y / scale);
+        graphics.drawString(font, text, scaledX, scaledY, 0xFFFF5555, false);
+        pose.popPose();
     }
 }
