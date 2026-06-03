@@ -33,20 +33,20 @@ public class CombatLogCommand {
                     .then(literal("status")
                         .executes(ctx -> statusSelf(ctx))
                         .then(argument("player", EntityArgument.player())
-                            .requires(src -> src.permissions().hasPermission(2))
+                            .requires(src -> src.getServer() != null && (src.getServer().isSingleplayer() || src.isPlayer() && src.getServer().getPlayerList().isOp(src.getPlayer().getGameProfile())))
                             .executes(ctx -> statusOther(ctx))))
  
                     .then(literal("reload")
-                        .requires(src -> src.permissions().hasPermission(2))
+                        .requires(src -> src.getServer() != null && (src.getServer().isSingleplayer() || src.isPlayer() && src.getServer().getPlayerList().isOp(src.getPlayer().getGameProfile())))
                         .executes(ctx -> reload(ctx)))
  
                     .then(literal("exempt")
-                        .requires(src -> src.permissions().hasPermission(2))
+                        .requires(src -> src.getServer() != null && (src.getServer().isSingleplayer() || src.isPlayer() && src.getServer().getPlayerList().isOp(src.getPlayer().getGameProfile())))
                         .then(argument("player", EntityArgument.player())
                             .executes(ctx -> toggleExempt(ctx))))
  
                     .then(literal("cleartag")
-                        .requires(src -> src.permissions().hasPermission(2))
+                        .requires(src -> src.getServer() != null && (src.getServer().isSingleplayer() || src.isPlayer() && src.getServer().getPlayerList().isOp(src.getPlayer().getGameProfile())))
                         .then(argument("player", EntityArgument.player())
                             .executes(ctx -> clearTag(ctx))))
  
@@ -136,3 +136,4 @@ public class CombatLogCommand {
         }
     }
 }
+ 
