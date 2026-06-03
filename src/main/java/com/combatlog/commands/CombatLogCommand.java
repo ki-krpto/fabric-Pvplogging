@@ -1,52 +1,57 @@
-package com.ki_krpto.combatlog.commands;
+package com.combatlog.commands;
 
-import com.ki_krpto.combatlog.CombatLog;
+import com.combatlog.CombatStateManager;
+import com.combatlog.ConfigLoader;
+import com.combatlog.LogWriter;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 
 public class CombatLogCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(CommandManager.literal("combatlog")
+
+    public static void register(CombatStateManager stateManager, ConfigLoader config, LogWriter logWriter) {
+        // Registration will be handled via Fabric's CommandRegistrationCallback
+    }
+
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("combatlog")
                 .requires(src -> src.hasPermission(2))
                 .executes(ctx -> executeCombatLog(ctx.getSource()))
-                .then(CommandManager.literal("clear")
+                .then(Commands.literal("clear")
                         .requires(src -> src.hasPermission(2))
                         .executes(ctx -> clearCombatLog(ctx.getSource()))
-                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                        .then(Commands.argument("player", EntityArgument.player())
                                 .requires(src -> src.hasPermission(2))
-                                .executes(ctx -> clearPlayerCombatLog(ctx.getSource(), EntityArgumentType.getPlayer(ctx, "player")))
+                                .executes(ctx -> clearPlayerCombatLog(ctx.getSource(), EntityArgument.getPlayer(ctx, "player")))
                         )
                 )
-                .then(CommandManager.literal("list")
+                .then(Commands.literal("list")
                         .requires(src -> src.hasPermission(2))
                         .executes(ctx -> listCombatLog(ctx.getSource()))
                 )
         );
     }
 
-    private static int executeCombatLog(ServerCommandSource source) {
-        source.sendFeedback(() -> Text.literal("CombatLog command executed"), false);
+    private static int executeCombatLog(CommandSourceStack source) {
+        source.sendSuccess(() -> Component.literal("CombatLog command executed"), false);
         return 1;
     }
 
-    private static int clearCombatLog(ServerCommandSource source) {
-        source.sendFeedback(() -> Text.literal("CombatLog cleared"), false);
+    private static int clearCombatLog(CommandSourceStack source) {
+        source.sendSuccess(() -> Component.literal("CombatLog cleared"), false);
         return 1;
     }
 
-    private static int clearPlayerCombatLog(ServerCommandSource source, PlayerEntity player) {
-        source.sendFeedback(() -> Text.literal("Cleared CombatLog for " + player.getName().getString()), false);
+    private static int clearPlayerCombatLog(CommandSourceStack source, ServerPlayer player) {
+        source.sendSuccess(() -> Component.literal("Cleared CombatLog for " + player.getName().getString()), false);
         return 1;
     }
 
-    private static int listCombatLog(ServerCommandSource source) {
-        source.sendFeedback(() -> Text.literal("CombatLog list"), false);
+    private static int listCombatLog(CommandSourceStack source) {
+        source.sendSuccess(() -> Component.literal("CombatLog list"), false);
         return 1;
     }
 }
