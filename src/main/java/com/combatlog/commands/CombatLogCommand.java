@@ -4,6 +4,7 @@ import com.combatlog.CombatStateManager;
 import com.combatlog.ConfigLoader;
 import com.combatlog.LogWriter;
 import com.mojang.brigadier.CommandDispatcher;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -13,10 +14,11 @@ import net.minecraft.server.level.ServerPlayer;
 public class CombatLogCommand {
 
     public static void register(CombatStateManager stateManager, ConfigLoader config, LogWriter logWriter) {
-        // Registration will be handled via Fabric's CommandRegistrationCallback
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+                register(dispatcher));
     }
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("combatlog")
                 .requires(src -> src.hasPermission(2))
                 .executes(ctx -> executeCombatLog(ctx.getSource()))
