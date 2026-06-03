@@ -20,20 +20,20 @@ public class CombatLogCommand {
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("combatlog")
-                .requires(Commands.hasPermission(2))
+                .requires(source -> source.hasPermission(2))
                 .executes(ctx -> executeCombatLog(ctx.getSource()))
                 .then(Commands.literal("clear")
-                        .requires(Commands.hasPermission(2))
+                        .requires(source -> source.hasPermission(2))
                         .executes(ctx -> clearCombatLog(ctx.getSource()))
                         .then(Commands.argument("player", EntityArgument.player())
-                                .requires(Commands.hasPermission(2))
+                                .requires(source -> source.hasPermission(2))
                                 .executes(ctx -> clearPlayerCombatLog(
                                         ctx.getSource(),
                                         EntityArgument.getPlayer(ctx, "player")))
                         )
                 )
                 .then(Commands.literal("list")
-                        .requires(Commands.hasPermission(2))
+                        .requires(source -> source.hasPermission(2))
                         .executes(ctx -> listCombatLog(ctx.getSource()))
                 )
         );
