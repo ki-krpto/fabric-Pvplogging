@@ -13,10 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CombatLogMod implements ModInitializer {
-
     public static final String MOD_ID = "combatlog";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
     private static CombatStateManager stateManager;
     private static LogWriter logWriter;
     private static ConfigLoader config;
@@ -28,6 +26,7 @@ public class CombatLogMod implements ModInitializer {
         config.load();
         logWriter = new LogWriter();
         stateManager = new CombatStateManager(config, logWriter);
+        CombatLogNetworking.register(); // ← ADD THIS
         registerEvents();
         CombatLogCommand.register(stateManager, config, logWriter);
         LOGGER.info("[CombatLog] Ready.");
@@ -35,10 +34,8 @@ public class CombatLogMod implements ModInitializer {
 
     private void registerEvents() {
         ServerLivingEntityEvents.AFTER_DAMAGE.register(this::onEntityDamage);
-
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
                 onPlayerDisconnect(handler.player, server));
-
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (server.getTickCount() % 20 == 0) {
                 stateManager.tickExpiry(server);
