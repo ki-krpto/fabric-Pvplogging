@@ -34,7 +34,8 @@ public final class CombatLogNetworking {
     private CombatLogNetworking() { }
 
     public static void register() {
-        PayloadTypeRegistry.playS2C().register(TagTimerPayload.TYPE, TagTimerPayload.CODEC);
+        // clientboundPlay() = server → client (S2C)
+        PayloadTypeRegistry.clientboundPlay().register(TagTimerPayload.TYPE, TagTimerPayload.CODEC);
     }
 
     public static void sendTagTime(ServerPlayer player, long remainingMs) {
