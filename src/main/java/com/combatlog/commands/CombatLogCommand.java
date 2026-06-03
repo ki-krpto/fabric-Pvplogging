@@ -5,11 +5,13 @@ import com.combatlog.ConfigLoader;
 import com.combatlog.LogWriter;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 
 public class CombatLogCommand {
 
@@ -20,20 +22,20 @@ public class CombatLogCommand {
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("combatlog")
-                .requires(source -> source.hasPermissions(2))
+                .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_MODERATOR))
                 .executes(ctx -> executeCombatLog(ctx.getSource()))
                 .then(Commands.literal("clear")
-                        .requires(source -> source.hasPermissions(2))
+                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_MODERATOR))
                         .executes(ctx -> clearCombatLog(ctx.getSource()))
                         .then(Commands.argument("player", EntityArgument.player())
-                                .requires(source -> source.hasPermissions(2))
+                                .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_MODERATOR))
                                 .executes(ctx -> clearPlayerCombatLog(
                                         ctx.getSource(),
                                         EntityArgument.getPlayer(ctx, "player")))
                         )
                 )
                 .then(Commands.literal("list")
-                        .requires(source -> source.hasPermissions(2))
+                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_MODERATOR))
                         .executes(ctx -> listCombatLog(ctx.getSource()))
                 )
         );
