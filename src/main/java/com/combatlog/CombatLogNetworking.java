@@ -6,17 +6,18 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class CombatLogNetworking {
 
     public record TagTimerPayload(long remainingMs) implements CustomPacketPayload {
 
+        public static final Identifier TAG_TIMER_ID =
+                Identifier.fromNamespaceAndPath(CombatLogMod.MOD_ID, "tag_timer");
+
         public static final CustomPacketPayload.Type<TagTimerPayload> TYPE =
-                new CustomPacketPayload.Type<>(
-                        ResourceLocation.fromNamespaceAndPath(CombatLogMod.MOD_ID, "tag_timer")
-                );
+                new CustomPacketPayload.Type<>(TAG_TIMER_ID);
 
         public static final StreamCodec<RegistryFriendlyByteBuf, TagTimerPayload> CODEC =
                 StreamCodec.composite(
@@ -34,7 +35,6 @@ public final class CombatLogNetworking {
     private CombatLogNetworking() { }
 
     public static void register() {
-        // clientboundPlay() = server → client (S2C)
         PayloadTypeRegistry.clientboundPlay().register(TagTimerPayload.TYPE, TagTimerPayload.CODEC);
     }
 
