@@ -8,7 +8,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
  
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -109,15 +109,15 @@ public class CombatStateManager {
  
     private void applyPunishment(ServerPlayer player, MinecraftServer server, CombatState state) {
         switch (config.getPunishment()) {
-            case KILL -> server.execute(player::kill);
+            case KILL -> server.execute(() -> player.kill((ServerLevel) player.level()));
  
             case LIGHTNING -> server.execute(() -> {
-                Level world = player.level();
+                ServerLevel world = (ServerLevel) player.level();
                 BlockPos pos = player.blockPosition();
                 LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, world);
-                bolt.moveTo(pos.getX(), pos.getY(), pos.getZ());
+                bolt.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
                 world.addFreshEntity(bolt);
-                player.kill();
+                player.kill(world);
             });
  
             case COMMAND -> {
@@ -137,4 +137,3 @@ public class CombatStateManager {
         }
     }
 }
- 

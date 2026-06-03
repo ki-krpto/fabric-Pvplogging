@@ -33,20 +33,20 @@ public class CombatLogCommand {
                     .then(literal("status")
                         .executes(ctx -> statusSelf(ctx))
                         .then(argument("player", EntityArgument.player())
-                            .requires(src -> src.hasPermission(2))
+                            .requires(src -> src.getPermissionLevel() >= 2)
                             .executes(ctx -> statusOther(ctx))))
  
                     .then(literal("reload")
-                        .requires(src -> src.hasPermission(2))
+                        .requires(src -> src.getPermissionLevel() >= 2)
                         .executes(ctx -> reload(ctx)))
  
                     .then(literal("exempt")
-                        .requires(src -> src.hasPermission(2))
+                        .requires(src -> src.getPermissionLevel() >= 2)
                         .then(argument("player", EntityArgument.player())
                             .executes(ctx -> toggleExempt(ctx))))
  
                     .then(literal("cleartag")
-                        .requires(src -> src.hasPermission(2))
+                        .requires(src -> src.getPermissionLevel() >= 2)
                         .then(argument("player", EntityArgument.player())
                             .executes(ctx -> clearTag(ctx))))
  
@@ -136,3 +136,4 @@ public class CombatLogCommand {
         }
     }
 }
+ 
