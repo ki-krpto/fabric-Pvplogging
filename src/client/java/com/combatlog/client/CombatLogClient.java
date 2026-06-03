@@ -3,7 +3,7 @@ package com.combatlog.client;
 import com.combatlog.CombatLogNetworking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.HudElementRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -25,7 +25,7 @@ public class CombatLogClient implements ClientModInitializer {
                     });
                 }
         );
-        HudRenderCallback.EVENT.register(CombatLogClient::renderHud);
+        HudElementRegistry.addLast(CombatLogClient::renderHud);
     }
 
     private static void renderHud(GuiGraphics graphics, float tickDelta) {
