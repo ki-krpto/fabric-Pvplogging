@@ -4,9 +4,12 @@ import com.combatlog.CombatLogNetworking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudElementRegistry;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.VanillaHudElements;
+import net.minecraft.resources.Identifier;
 
 public class CombatLogClient implements ClientModInitializer {
 
@@ -25,10 +28,15 @@ public class CombatLogClient implements ClientModInitializer {
                     });
                 }
         );
-        HudElementRegistry.addLast(CombatLogClient::renderHud);
+
+        HudElementRegistry.attachElementBefore(
+                VanillaHudElements.CHAT,
+                Identifier.fromNamespaceAndPath("combatlog", "tag_timer"),
+                CombatLogClient::renderHud
+        );
     }
 
-    private static void renderHud(GuiGraphics graphics, float tickDelta) {
+    private static void renderHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
         long remainingMs = tagEndsAtMs - System.currentTimeMillis();
         if (remainingMs <= 0) return;
 
