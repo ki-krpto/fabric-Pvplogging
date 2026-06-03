@@ -1,4 +1,4 @@
-# Example Mod
+# CombatLog
 
 ## Setup
 
