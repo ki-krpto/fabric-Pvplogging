@@ -3,10 +3,10 @@ package com.combatlog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.server.level.ServerLevel;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,19 +30,28 @@ public class CombatStateManager {
 
         long durationMs = config.getTagDurationSeconds() * 1000L;
 
-        getOrCreate(attacker.getUUID()).tag(durationMs, attacker.getUUID(), victim.getUUID());
-        getOrCreate(victim.getUUID()).tag(durationMs, attacker.getUUID(), victim.getUUID());
+        CombatState attackerState = getOrCreate(attacker.getUUID());
+        CombatState victimState = getOrCreate(victim.getUUID());
 
-        if (config.isNotifyAttacker()) {
+        boolean attackerWasTagged = attackerState.isTagged();
+        boolean victimWasTagged = victimState.isTagged();
+
+        attackerState.tag(durationMs, attacker.getUUID(), victim.getUUID());
+        victimState.tag(durationMs, attacker.getUUID(), victim.getUUID());
+
+        if (config.isNotifyAttacker() && !attackerWasTagged) {
             attacker.sendSystemMessage(Component.literal(
                     "§c[Combat] §7You are in combat for §c"
                             + config.getTagDurationSeconds() + "s§7."));
         }
-        if (config.isNotifyAttacker()) {
+        if (config.isNotifyAttacker() && !victimWasTagged) {
             victim.sendSystemMessage(Component.literal(
                     "§c[Combat] §7You are in combat for §c"
                             + config.getTagDurationSeconds() + "s§7."));
         }
+
+        CombatLogNetworking.sendTagTime(attacker, attackerState.msRemaining());
+        CombatLogNetworking.sendTagTime(victim, victimState.msRemaining());
     }
 
     public void tickExpiry(MinecraftServer server) {
@@ -54,6 +63,7 @@ public class CombatStateManager {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
             if (player != null) {
                 player.sendSystemMessage(Component.literal("§a[Combat] §7You are no longer in combat."));
+                CombatLogNetworking.sendTagTime(player, 0);
             }
             state.clearTag();
         }

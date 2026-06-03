@@ -7,10 +7,13 @@
   "authors": [ "Erik Shaver", "aj" ],
   "contact": {},
   "license": "MIT",
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
     "main": [
       "com.combatlog.CombatLogMod"
+    ],
+    "client": [
+      "com.combatlog.client.CombatLogClient"
     ]
   },
   "depends": {
