@@ -5,7 +5,6 @@ import com.combatlog.ConfigLoader;
 import com.combatlog.LogWriter;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -21,20 +20,20 @@ public class CombatLogCommand {
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("combatlog")
-                .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
+                .requires(source -> source.hasPermissions(2))
                 .executes(ctx -> executeCombatLog(ctx.getSource()))
                 .then(Commands.literal("clear")
-                        .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
+                        .requires(source -> source.hasPermissions(2))
                         .executes(ctx -> clearCombatLog(ctx.getSource()))
                         .then(Commands.argument("player", EntityArgument.player())
-                                .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
+                                .requires(source -> source.hasPermissions(2))
                                 .executes(ctx -> clearPlayerCombatLog(
                                         ctx.getSource(),
                                         EntityArgument.getPlayer(ctx, "player")))
                         )
                 )
                 .then(Commands.literal("list")
-                        .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
+                        .requires(source -> source.hasPermissions(2))
                         .executes(ctx -> listCombatLog(ctx.getSource()))
                 )
         );
