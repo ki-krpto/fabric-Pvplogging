@@ -115,7 +115,7 @@ public class CombatStateManager {
                 ServerLevel world = (ServerLevel) player.level();
                 BlockPos pos = player.blockPosition();
                 LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, world);
-                bolt.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+                bolt.moveTo(pos.getX() + 0.5, pos.getY() + 0.0, pos.getZ() + 0.5);
                 world.addFreshEntity(bolt);
                 player.kill(world);
             });
