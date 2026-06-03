@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudElementRegistry;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.VanillaHudElements;
 import net.minecraft.resources.Identifier;
@@ -45,18 +44,12 @@ public class CombatLogClient implements ClientModInitializer {
 
         int seconds = (int) Math.ceil(remainingMs / 1000.0);
         String text = String.valueOf(seconds);
-        Font font = client.font;
+
         int width = client.getWindow().getGuiScaledWidth();
         int height = client.getWindow().getGuiScaledHeight();
-        int x = (width - font.width(text)) / 2;
+        int x = (width - client.font.width(text)) / 2;
         int y = height - 49;
-        float scale = 0.9f;
-        var pose = graphics.pose();
-        pose.pushPose();
-        pose.scale(scale, scale, 1.0f);
-        int scaledX = Math.round(x / scale);
-        int scaledY = Math.round(y / scale);
-        graphics.drawString(font, text, scaledX, scaledY, 0xFFFF5555, false);
-        pose.popPose();
+
+        graphics.text(client.font, text, x, y, 0xFFFF5555, false);
     }
 }
