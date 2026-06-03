@@ -5,6 +5,7 @@ import com.combatlog.ConfigLoader;
 import com.combatlog.LogWriter;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -14,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 public class CombatLogCommand {
 
     public static void register(CombatStateManager stateManager, ConfigLoader config, LogWriter logWriter) {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
                 register(dispatcher));
     }
 
