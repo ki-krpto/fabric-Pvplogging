@@ -15,26 +15,26 @@ import net.minecraft.server.level.ServerPlayer;
 public class CombatLogCommand {
 
     public static void register(CombatStateManager stateManager, ConfigLoader config, LogWriter logWriter) {
-        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) ->
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 register(dispatcher));
     }
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("combatlog")
-                .requires(src -> src.hasPermission(2))       
+                .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
                 .executes(ctx -> executeCombatLog(ctx.getSource()))
                 .then(Commands.literal("clear")
-                        .requires(src -> src.hasPermission(2))
+                        .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
                         .executes(ctx -> clearCombatLog(ctx.getSource()))
                         .then(Commands.argument("player", EntityArgument.player())
-                                .requires(src -> src.hasPermission(2))
+                                .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
                                 .executes(ctx -> clearPlayerCombatLog(
                                         ctx.getSource(),
                                         EntityArgument.getPlayer(ctx, "player")))
                         )
                 )
                 .then(Commands.literal("list")
-                        .requires(src -> src.hasPermission(2))
+                        .requires(source -> source.hasPermission(Commands.LEVEL_MODERATORS))
                         .executes(ctx -> listCombatLog(ctx.getSource()))
                 )
         );
