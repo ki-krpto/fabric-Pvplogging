@@ -2,6 +2,7 @@ package com.combatlog;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,10 +32,10 @@ public class CombatStateManager {
         long durationMs = config.getTagDurationSeconds() * 1000L;
 
         CombatState attackerState = getOrCreate(attacker.getUUID());
-        CombatState victimState = getOrCreate(victim.getUUID());
+        CombatState victimState   = getOrCreate(victim.getUUID());
 
         boolean attackerWasTagged = attackerState.isTagged();
-        boolean victimWasTagged = victimState.isTagged();
+        boolean victimWasTagged   = victimState.isTagged();
 
         attackerState.tag(durationMs, attacker.getUUID(), victim.getUUID());
         victimState.tag(durationMs, attacker.getUUID(), victim.getUUID());
@@ -50,8 +51,8 @@ public class CombatStateManager {
                             + config.getTagDurationSeconds() + "s§7."));
         }
 
-        CombatLogNetworking.sendTagTime(attacker, attackerState.msRemaining());
-        CombatLogNetworking.sendTagTime(victim, victimState.msRemaining());
+        sendActionBar(attacker, attackerState.msRemaining());
+        sendActionBar(victim, victimState.msRemaining());
     }
 
     public void tickExpiry(MinecraftServer server) {
@@ -65,17 +66,14 @@ public class CombatStateManager {
                 if (player != null) {
                     player.sendSystemMessage(Component.literal(
                             "§a[Combat] §7You are no longer in combat."));
-                    CombatLogNetworking.sendTagTime(player, 0);
+                    // Clear the action bar
+                    player.connection.send(new ClientboundSetActionBarTextPacket(
+                            Component.literal("")));
                 }
                 state.clearTag();
             } else {
                 if (player != null) {
-                    int seconds = (int) Math.ceil(state.msRemaining() / 1000.0);
-                    player.displayClientMessage(
-                            Component.literal("§c⚔ Combat: §f" + seconds + "s"),
-                            true
-                    );
-                    CombatLogNetworking.sendTagTime(player, state.msRemaining());
+                    sendActionBar(player, state.msRemaining());
                 }
             }
         }
@@ -113,6 +111,14 @@ public class CombatStateManager {
         states.remove(uuid);
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private void sendActionBar(ServerPlayer player, long remainingMs) {
+        int seconds = (int) Math.ceil(remainingMs / 1000.0);
+        Component msg = Component.literal("§c⚔ Combat: §f" + seconds + "s");
+        player.connection.send(new ClientboundSetActionBarTextPacket(msg));
+    }
+
     private CombatState getOrCreate(UUID uuid) {
         return states.computeIfAbsent(uuid, CombatState::new);
     }
@@ -143,7 +149,7 @@ public class CombatStateManager {
                         .performPrefixedCommand(server.createCommandSourceStack(), cmd));
             }
 
-            case NONE -> { }
+            case NONE -> {}
         }
 
         if (config.isNotifyBystanders()) {
