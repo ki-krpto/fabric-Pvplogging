@@ -57,15 +57,24 @@ public class CombatStateManager {
     public void tickExpiry(MinecraftServer server) {
         for (Map.Entry<UUID, CombatState> entry : states.entrySet()) {
             CombatState state = entry.getValue();
-            if (state.isTagged()) continue;
-            if (state.getTaggedUntil() == 0) continue;
+            if (!state.isTagged()) continue; // skip players not in combat
 
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
-            if (player != null) {
-                player.sendSystemMessage(Component.literal("§a[Combat] §7You are no longer in combat."));
-                CombatLogNetworking.sendTagTime(player, 0);
+
+            if (state.msRemaining() <= 0) {
+                // Tag has expired — notify and clear
+                if (player != null) {
+                    player.sendSystemMessage(Component.literal(
+                            "§a[Combat] §7You are no longer in combat."));
+                    CombatLogNetworking.sendTagTime(player, 0);
+                }
+                state.clearTag();
+            } else {
+                // Still tagged — keep client timer in sync
+                if (player != null) {
+                    CombatLogNetworking.sendTagTime(player, state.msRemaining());
+                }
             }
-            state.clearTag();
         }
     }
 
