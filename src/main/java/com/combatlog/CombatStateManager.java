@@ -54,27 +54,17 @@ public class CombatStateManager {
         CombatLogNetworking.sendTagTime(victim, victimState.msRemaining());
     }
 
-    public void tickExpiry(MinecraftServer server) {
-        for (Map.Entry<UUID, CombatState> entry : states.entrySet()) {
-            CombatState state = entry.getValue();
-            if (!state.isTagged()) continue; // skip players not in combat
-
-            ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
-
-            if (state.msRemaining() <= 0) {
-                // Tag has expired — notify and clear
-                if (player != null) {
-                    player.sendSystemMessage(Component.literal(
-                            "§a[Combat] §7You are no longer in combat."));
-                    CombatLogNetworking.sendTagTime(player, 0);
-                }
-                state.clearTag();
-            } else {
-                // Still tagged — keep client timer in sync
-                if (player != null) {
-                    CombatLogNetworking.sendTagTime(player, state.msRemaining());
-                }
-            }
+    if (player != null) {
+        if (state.msRemaining() <= 0) {
+            player.sendSystemMessage(Component.literal("§a[Combat] §7You are no longer in combat."));
+            state.clearTag();
+        } else {
+            int seconds = (int) Math.ceil(state.msRemaining() / 1000.0);
+            // true = action bar (above hotbar), works for all players including Bedrock
+            player.displayClientMessage(
+                Component.literal("§c⚔ Combat: §f" + seconds + "s"),
+                true
+            );
         }
     }
 

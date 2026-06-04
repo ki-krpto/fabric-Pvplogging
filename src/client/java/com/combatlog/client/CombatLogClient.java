@@ -4,6 +4,7 @@ import com.combatlog.CombatLogNetworking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -27,7 +28,8 @@ public class CombatLogClient implements ClientModInitializer {
                 }
         );
 
-        HudElementRegistry.addLast(
+        HudElementRegistry.attachElementBefore(
+                VanillaHudElements.CHAT,
                 Identifier.fromNamespaceAndPath("combatlog", "tag_timer"),
                 CombatLogClient::renderHud
         );
@@ -41,14 +43,13 @@ public class CombatLogClient implements ClientModInitializer {
         if (client == null || client.player == null) return;
 
         int seconds = (int) Math.ceil(remainingMs / 1000.0);
-        String text = "Combat: " + seconds + "s";
+        String text = String.valueOf(seconds);
 
         int width = client.getWindow().getGuiScaledWidth();
         int height = client.getWindow().getGuiScaledHeight();
         int x = (width - client.font.width(text)) / 2;
         int y = height - 49;
 
-        graphics.fill(x - 2, y - 2, x + client.font.width(text) + 2, y + 10, 0x88000000);
-        graphics.drawString(client.font, text, x, y, 0xFFFF5555, true);
+        graphics.text(client.font, text, x, y, 0xFFFF5555, false);
     }
 }
