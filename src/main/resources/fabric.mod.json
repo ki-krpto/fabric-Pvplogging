@@ -10,7 +10,7 @@
   "environment": "server",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.combatlog.CombatLogMod"
+      "com.combatlog.CombatLogMod"
     ]
   },
   "depends": {
