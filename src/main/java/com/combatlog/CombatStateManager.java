@@ -54,17 +54,30 @@ public class CombatStateManager {
         CombatLogNetworking.sendTagTime(victim, victimState.msRemaining());
     }
 
-    if (player != null) {
-        if (state.msRemaining() <= 0) {
-            player.sendSystemMessage(Component.literal("§a[Combat] §7You are no longer in combat."));
-            state.clearTag();
-        } else {
-            int seconds = (int) Math.ceil(state.msRemaining() / 1000.0);
-            // true = action bar (above hotbar), works for all players including Bedrock
-            player.displayClientMessage(
-                Component.literal("§c⚔ Combat: §f" + seconds + "s"),
-                true
-            );
+    public void tickExpiry(MinecraftServer server) {
+        for (Map.Entry<UUID, CombatState> entry : states.entrySet()) {
+            CombatState state = entry.getValue();
+            if (!state.isTagged()) continue;
+
+            ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+
+            if (state.msRemaining() <= 0) {
+                if (player != null) {
+                    player.sendSystemMessage(Component.literal(
+                            "§a[Combat] §7You are no longer in combat."));
+                    CombatLogNetworking.sendTagTime(player, 0);
+                }
+                state.clearTag();
+            } else {
+                if (player != null) {
+                    int seconds = (int) Math.ceil(state.msRemaining() / 1000.0);
+                    player.displayClientMessage(
+                            Component.literal("§c⚔ Combat: §f" + seconds + "s"),
+                            true
+                    );
+                    CombatLogNetworking.sendTagTime(player, state.msRemaining());
+                }
+            }
         }
     }
 
