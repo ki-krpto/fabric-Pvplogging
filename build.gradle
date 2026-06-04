@@ -18,7 +18,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"modid" {
+		"combatlog" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
