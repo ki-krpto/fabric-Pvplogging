@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "CombatLog",
   "description": "Tags players in PvP combat and punishes those who disconnect to avoid a fight.",
-  "authors": [ "YourName" ],
+  "authors": [ "Erik Shaver", "aj" ],
   "contact": {},
   "license": "MIT",
   "environment": "server",
@@ -16,6 +16,6 @@
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric-api":   "*",
-    "minecraft":    "~1.21"
+    "minecraft":    "~26.1"
   }
 }
